@@ -1,40 +1,20 @@
-- hosts: ec2
-  become: yes
-  tasks:
-    - name: Update all packages
-      yum:
-        name: "*"
-        state: latest
-      when: ansible_os_family == "RedHat"
+variable "aws_region" {
+  default = "us-east-1"
+}
 
-    - name: Install Docker
-      yum:
-        name: docker
-        state: present
-      when: ansible_os_family == "RedHat"
+variable "key_name" {
+  default = "gitlab-deployer-key"
+}
 
-    - name: Start and enable Docker service
-      systemd:
-        name: docker
-        state: started
-        enabled: yes
+variable "public_key_path" {
+  default = "~/.ssh/id_rsa.pub"
+}
 
-    - name: Install OpenShift CLI (oc)
-      get_url:
-        url: https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
-        dest: /tmp/oc.tar.gz
-        mode: '0755'
-      register: download_oc
+variable "ami_id" {
+  # Example Amazon Linux 2 AMI in us-east-1
+  default = "ami-0c02fb55956c7d316"
+}
 
-    - name: Extract oc binary
-      unarchive:
-        src: /tmp/oc.tar.gz
-        dest: /usr/local/bin/
-        remote_src: yes
-        extra_opts: [--strip-components=1]
-      when: download_oc is changed
-
-    - name: Ensure oc is executable
-      file:
-        path: /usr/local/bin/oc
-        mode: '0755'
+variable "instance_type" {
+  default = "t2.micro"
+}
